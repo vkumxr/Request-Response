@@ -3,15 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Edj20Tester"
         mc:Ignorable="d"
         Title="EDJ20 TESTING SYSTEM"
-        Height="600"
-        Width="900"
+        Height="700"
+        Width="960"
         Background="#1E1E1E">
 
     <Grid Margin="15">
-
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -22,20 +20,16 @@
         <!-- TITLE -->
         <TextBlock Text="EDJ20 TESTING SYSTEM"
                    Foreground="Lime"
-                   FontSize="28"
+                   FontSize="26"
                    FontWeight="Bold"
-                   Margin="0,0,0,20"/>
+                   Margin="0,0,0,16"/>
 
         <!-- TOP CONTROLS -->
-        <StackPanel Grid.Row="1"
-                    Orientation="Horizontal"
-                    Margin="0,0,0,20">
-
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
             <Button Name="btnStart"
                     Click="btnStart_Click"
                     Content="START TEST"
-                    Width="150"
-                    Height="45"
+                    Width="150" Height="45"
                     Background="#111111"
                     Foreground="Lime"
                     BorderBrush="Lime"
@@ -43,7 +37,18 @@
                     FontWeight="Bold"
                     FontSize="14"
                     Cursor="Hand"/>
-
+            <Button Name="btnClear"
+                    Click="btnClear_Click"
+                    Content="CLEAR"
+                    Width="100" Height="45"
+                    Background="#111111"
+                    Foreground="#FF5555"
+                    BorderBrush="#FF5555"
+                    BorderThickness="1"
+                    FontWeight="Bold"
+                    FontSize="14"
+                    Cursor="Hand"
+                    Margin="12,0,0,0"/>
         </StackPanel>
 
         <!-- PACKET VIEW AREA -->
@@ -52,14 +57,10 @@
                 BorderBrush="#333333"
                 BorderThickness="1"
                 CornerRadius="10"
-                Padding="10">
-
+                Padding="14">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-
                 <StackPanel Name="PacketPanel"/>
-
             </ScrollViewer>
-
         </Border>
 
         <!-- STATUS BAR -->
@@ -67,25 +68,20 @@
                 Background="#222222"
                 CornerRadius="8"
                 Padding="12"
-                Margin="0,20,0,0">
-
+                Margin="0,16,0,0">
             <DockPanel>
-
-                <Ellipse Width="12"
-                         Height="12"
+                <Ellipse Name="StatusDot"
+                         Width="12" Height="12"
                          Fill="Lime"
                          Margin="0,0,10,0"
                          VerticalAlignment="Center"/>
-
-                <TextBlock Text="STATUS : READY"
+                <TextBlock Name="StatusText"
+                           Text="STATUS : READY"
                            Foreground="Cyan"
-                           FontSize="18"
+                           FontSize="16"
                            FontWeight="Bold"
                            VerticalAlignment="Center"/>
-
             </DockPanel>
-
         </Border>
-
     </Grid>
 </Window>
