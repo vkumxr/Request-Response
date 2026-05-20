@@ -54,7 +54,7 @@ namespace Edj20Tester
                 {
                     if (command == "READ_INPUT_REGISTERS")
                     {
-                        // FC 04 — Read Input Registers, starting at 30001 (addr 0x0000), qty 2
+                        //Request Frame
                         byte fc = 0x04;
                         byte addrHi = 0x00;
                         byte addrLo = 0x00;
