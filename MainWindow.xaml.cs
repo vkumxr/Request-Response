@@ -35,8 +35,6 @@ namespace Edj20Tester
             StatusText.Text = "STATUS : READY";
         }
 
-        // ── Main render method ──────────────────────────────────────────────
-
         private void ShowPackets(DeviceResponse response)
         {
             if (response.Request != null)
@@ -46,24 +44,13 @@ namespace Edj20Tester
                 PacketPanel.Children.Add(BuildResponseTable(response.Response));
         }
 
-        // ── REQUEST table ───────────────────────────────────────────────────
-
         private UIElement BuildRequestTable(ModbusPacket pkt)
         {
-            // Header + description
             var outerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 20) };
 
             outerStack.Children.Add(SectionLabel("REQUEST", "#00FFFF"));
-            outerStack.Children.Add(SubLabel(
-                "The request message specifies the starting register and quantity of registers to be read.",
-                "#AAAAAA"));
-            outerStack.Children.Add(SubLabel(
-                $"Example: Read 0…1 (register 30001 to 30002) from slave device {pkt.SlaveAddress}:",
-                "#888888"));
 
-            // Table
             var grid = MakeTableGrid();
-
             AddHeaderRow(grid, 0);
 
             int row = 1;
@@ -83,24 +70,16 @@ namespace Edj20Tester
             AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—");
 
             outerStack.Children.Add(WrapTable(grid));
-
-            // Raw hex line
             outerStack.Children.Add(RawHexBlock(pkt.RawBytes, "#00FFFF"));
 
             return outerStack;
         }
-
-        // ── RESPONSE table ──────────────────────────────────────────────────
 
         private UIElement BuildResponseTable(ModbusPacket pkt)
         {
             var outerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 20) };
 
             outerStack.Children.Add(SectionLabel("RESPONSE", "#00FF00"));
-            outerStack.Children.Add(SubLabel(
-                "Register data is packed as two bytes per register, high-order byte first.",
-                "#AAAAAA"));
-            outerStack.Children.Add(SubLabel("Example of a response to the request:", "#888888"));
 
             var grid = MakeTableGrid();
             AddHeaderRow(grid, 0);
@@ -111,7 +90,6 @@ namespace Edj20Tester
             AddRow(grid, row++, "Function", $"{pkt.FunctionCode:X2}", $"0 {pkt.FunctionCode:X}");
             AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}");
 
-            // data bytes (2 bytes per register)
             if (pkt.DataBytes != null)
             {
                 for (int i = 0; i < pkt.DataBytes.Length; i += 2)
@@ -135,7 +113,7 @@ namespace Edj20Tester
             return outerStack;
         }
 
-        // ── Table helpers ────────────────────────────────────────────────────
+        // ── Table helpers ─────────────────────────────────────────────────────
 
         private static readonly string[] ColHeaders = { "Field Name", "RTU (hex)", "ASCII Characters" };
 
@@ -210,18 +188,27 @@ namespace Edj20Tester
 
         private UIElement RawHexBlock(byte[] bytes, string colorHex)
         {
-            string hex = string.Join(" ", Array.ConvertAll(bytes, b => b.ToString("X2")));
+            var parts = new System.Text.StringBuilder();
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                parts.Append(bytes[i].ToString("X2"));
+                if (i < bytes.Length - 1)
+                {
+                    bool doubleSpace = (i == 0) || (i == 1) || (i == bytes.Length - 3);
+                    parts.Append(doubleSpace ? "  " : " ");
+                }
+            }
+
             return new TextBlock
             {
-                Text = "RAW:  " + hex,
+                Text = parts.ToString(),
                 Foreground = (Brush)new BrushConverter().ConvertFromString(colorHex),
                 FontFamily = new FontFamily("Consolas"),
-                FontSize = 13,
-                Margin = new Thickness(0, 0, 0, 6)
+                FontSize = 15,
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, 8, 0, 6)
             };
         }
-
-        // ── Label helpers ─────────────────────────────────────────────────────
 
         private UIElement SectionLabel(string text, string colorHex)
         {
@@ -232,19 +219,6 @@ namespace Edj20Tester
                 FontFamily = new FontFamily("Consolas"),
                 FontSize = 17,
                 FontWeight = FontWeights.Bold,
-                Margin = new Thickness(0, 0, 0, 4)
-            };
-        }
-
-        private UIElement SubLabel(string text, string colorHex)
-        {
-            return new TextBlock
-            {
-                Text = text,
-                Foreground = (Brush)new BrushConverter().ConvertFromString(colorHex),
-                FontFamily = new FontFamily("Segoe UI"),
-                FontSize = 12,
-                TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 4)
             };
         }
