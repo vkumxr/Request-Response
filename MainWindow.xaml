@@ -1,0 +1,91 @@
+<Window x:Class="Edj20Tester.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Edj20Tester"
+        mc:Ignorable="d"
+        Title="EDJ20 TESTING SYSTEM"
+        Height="600"
+        Width="900"
+        Background="#1E1E1E">
+
+    <Grid Margin="15">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- TITLE -->
+        <TextBlock Text="EDJ20 TESTING SYSTEM"
+                   Foreground="Lime"
+                   FontSize="28"
+                   FontWeight="Bold"
+                   Margin="0,0,0,20"/>
+
+        <!-- TOP CONTROLS -->
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    Margin="0,0,0,20">
+
+            <Button Name="btnStart"
+                    Click="btnStart_Click"
+                    Content="START TEST"
+                    Width="150"
+                    Height="45"
+                    Background="#111111"
+                    Foreground="Lime"
+                    BorderBrush="Lime"
+                    BorderThickness="1"
+                    FontWeight="Bold"
+                    FontSize="14"
+                    Cursor="Hand"/>
+
+        </StackPanel>
+
+        <!-- PACKET VIEW AREA -->
+        <Border Grid.Row="2"
+                Background="#111111"
+                BorderBrush="#333333"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="10">
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+                <StackPanel Name="PacketPanel"/>
+
+            </ScrollViewer>
+
+        </Border>
+
+        <!-- STATUS BAR -->
+        <Border Grid.Row="3"
+                Background="#222222"
+                CornerRadius="8"
+                Padding="12"
+                Margin="0,20,0,0">
+
+            <DockPanel>
+
+                <Ellipse Width="12"
+                         Height="12"
+                         Fill="Lime"
+                         Margin="0,0,10,0"
+                         VerticalAlignment="Center"/>
+
+                <TextBlock Text="STATUS : READY"
+                           Foreground="Cyan"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"/>
+
+            </DockPanel>
+
+        </Border>
+
+    </Grid>
+</Window>
