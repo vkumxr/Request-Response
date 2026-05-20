@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="EDJ20 TESTING SYSTEM"
-        Height="700"
-        Width="960"
+        Height="700" Width="980"
         Background="#1E1E1E">
 
     <Grid Margin="15">
@@ -18,37 +17,68 @@
         </Grid.RowDefinitions>
 
         <!-- TITLE -->
-        <TextBlock Text="EDJ20 TESTING SYSTEM"
+        <TextBlock Text="REQUEST RESPONSE TESTING"
                    Foreground="Lime"
                    FontSize="26"
                    FontWeight="Bold"
                    Margin="0,0,0,16"/>
 
         <!-- TOP CONTROLS -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+        <StackPanel Grid.Row="1" Orientation="Horizontal"
+                    Margin="0,0,0,16" VerticalAlignment="Center">
+
+            <!-- Dropdown label -->
+            <TextBlock Text="Input Method"
+                       Foreground="#AAAAAA"
+                       FontFamily="Consolas"
+                       FontSize="13"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+
+            <!-- Function code dropdown -->
+            <ComboBox Name="cmbFunction"
+                      Width="260" Height="40"
+                      Background="#111111"
+                      Foreground="Black"
+                      BorderBrush="#444444"
+                      BorderThickness="1"
+                      FontFamily="Consolas"
+                      FontSize="13"
+                      VerticalContentAlignment="Center"
+                      Padding="8,0,0,0"
+                      Margin="0,0,12,0">
+                <ComboBoxItem Content="Coils"             Tag="FC01" IsSelected="True"/>
+                <ComboBoxItem Content="Discrete Inputs"   Tag="FC02"/>
+                <ComboBoxItem Content="Holding Registers" Tag="FC03"/>
+                <ComboBoxItem Content="Input Registers"   Tag="FC04"/>
+            </ComboBox>
+
+            <!-- Start button -->
             <Button Name="btnStart"
                     Click="btnStart_Click"
                     Content="START TEST"
-                    Width="150" Height="45"
+                    Width="140" Height="40"
                     Background="#111111"
                     Foreground="Lime"
                     BorderBrush="Lime"
                     BorderThickness="1"
                     FontWeight="Bold"
-                    FontSize="14"
+                    FontSize="13"
                     Cursor="Hand"/>
+
+            <!-- Clear button -->
             <Button Name="btnClear"
                     Click="btnClear_Click"
                     Content="CLEAR"
-                    Width="100" Height="45"
+                    Width="90" Height="40"
                     Background="#111111"
                     Foreground="#FF5555"
                     BorderBrush="#FF5555"
                     BorderThickness="1"
                     FontWeight="Bold"
-                    FontSize="14"
+                    FontSize="13"
                     Cursor="Hand"
-                    Margin="12,0,0,0"/>
+                    Margin="10,0,0,0"/>
         </StackPanel>
 
         <!-- PACKET VIEW AREA -->
@@ -58,7 +88,8 @@
                 BorderThickness="1"
                 CornerRadius="10"
                 Padding="14">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Name="PacketScroller"
+                          VerticalScrollBarVisibility="Auto">
                 <StackPanel Name="PacketPanel"/>
             </ScrollViewer>
         </Border>
