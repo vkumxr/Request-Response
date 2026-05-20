@@ -20,16 +20,7 @@ namespace Edj20Tester
             btnStart.IsEnabled = false;
             StatusDot.Fill = Brushes.Yellow;
             StatusText.Text = "STATUS : RUNNING...";
-
-            var selected = (cmbFunction.SelectedItem as ComboBoxItem)?.Tag?.ToString();
-            var function = selected switch
-            {
-                "FC01" => ModbusFunction.FC01_ReadCoils,
-                "FC02" => ModbusFunction.FC02_ReadDiscreteInputs,
-                "FC03" => ModbusFunction.FC03_ReadHoldingRegisters,
-                _ => ModbusFunction.FC04_ReadInputRegisters
-            };
-
+            var function = ModbusFunction.FC01_ReadCoils;
             var client = new DeviceClient();
             var response = await client.SendAsync(function);
 
