@@ -6,7 +6,7 @@
         xmlns:models="clr-namespace:Edj20Tester.Models"
         mc:Ignorable="d"
         Title="EDJ20 TESTING SYSTEM"
-        Height="700" Width="980"
+        Height="760" Width="1380"
         Background="#1E1E1E">
 
     <Grid Margin="15">
@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
 
         <!-- TITLE -->
-        <TextBlock Text="REQUEST RESPONSE TESTING"
+        <TextBlock Text="REQUEST  /  RESPONSE  TESTING"
                    Foreground="Lime"
                    FontSize="26"
                    FontWeight="Bold"
@@ -26,9 +26,8 @@
 
         <!-- TOP CONTROLS -->
         <StackPanel Grid.Row="1" Orientation="Horizontal"
-                    Margin="0,0,0,16" VerticalAlignment="Center">
+                    Margin="0,0,0,12" VerticalAlignment="Center">
 
-            <!-- Dropdown label -->
             <TextBlock Text="Function:"
                        Foreground="#AAAAAA"
                        FontSize="13"
@@ -36,7 +35,6 @@
                        VerticalAlignment="Center"
                        Margin="0,0,8,0"/>
 
-            <!-- Function code dropdown -->
             <ComboBox Name="FunctionSelector"
                       Width="280" Height="40"
                       Background="#111111"
@@ -66,7 +64,6 @@
                               Tag="{x:Static models:ModbusFunction.FC16_WriteMultipleRegisters}"/>
             </ComboBox>
 
-            <!-- Start button -->
             <Button Name="btnStart"
                     Click="btnStart_Click"
                     Content="START TEST"
@@ -79,7 +76,6 @@
                     FontSize="13"
                     Cursor="Hand"/>
 
-            <!-- Clear button -->
             <Button Name="btnClear"
                     Click="btnClear_Click"
                     Content="CLEAR"
@@ -94,25 +90,88 @@
                     Margin="10,0,0,0"/>
         </StackPanel>
 
-        <!-- PACKET VIEW AREA -->
-        <Border Grid.Row="2"
-                Background="#111111"
-                BorderBrush="#333333"
-                BorderThickness="1"
-                CornerRadius="10"
-                Padding="14">
-            <ScrollViewer Name="PacketScroller"
-                          VerticalScrollBarVisibility="Auto">
-                <StackPanel Name="PacketPanel"/>
-            </ScrollViewer>
-        </Border>
+        <!-- SIDE-BY-SIDE PACKET AREA -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ── LEFT: REQUEST panel ── -->
+            <Border Grid.Column="0"
+                    Background="#111111"
+                    BorderBrush="#00CCCC"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="REQUEST"
+                               Foreground="#00FFFF"
+                               FontFamily="Consolas"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
+
+                    <ScrollViewer Grid.Row="1"
+                                  Name="RequestScroller"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Auto">
+                        <StackPanel Name="RequestPanel"/>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- ── CENTRE divider ── -->
+            <Rectangle Grid.Column="1"
+                       Width="1"
+                       Fill="#333333"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Stretch"/>
+
+            <!-- ── RIGHT: RESPONSE panel ── -->
+            <Border Grid.Column="2"
+                    Background="#111111"
+                    BorderBrush="#00AA00"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="RESPONSE"
+                               Foreground="#00FF00"
+                               FontFamily="Consolas"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
+
+                    <ScrollViewer Grid.Row="1"
+                                  Name="ResponseScroller"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Auto">
+                        <StackPanel Name="ResponsePanel"/>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
 
         <!-- STATUS BAR -->
         <Border Grid.Row="3"
                 Background="#222222"
                 CornerRadius="8"
                 Padding="12"
-                Margin="0,16,0,0">
+                Margin="0,14,0,0">
             <DockPanel>
                 <Ellipse Name="StatusDot"
                          Width="12" Height="12"
