@@ -65,9 +65,8 @@ namespace Edj20Tester
             AddHeaderRow(grid, 0);
             int row = 1;
 
-            // SlaveId = 0x01, FunctionCode varies — both are fixed per FC
             string expSlaveAddr = "01";
-            string expFc = $"{pkt.FunctionCode:X2}"; // FC is always correct by definition
+            string expFc = $"{pkt.FunctionCode:X2}";
 
             AddRow(grid, row++, "Header", "None", "None", "None");
             AddRow(grid, row++, "Slave Address", $"{pkt.SlaveAddress:X2}", $"0 {pkt.SlaveAddress:X}", expSlaveAddr);
@@ -76,7 +75,7 @@ namespace Edj20Tester
             switch (pkt.Function)
             {
                 // ── FC01 – Read Coils ────────────────────────────────────────
-                // Expected request: 01 01 00 00 00 02 | CRC: BD CB | Total: 8
+                // Expected: 01 01 00 00 00 02 | CRC: BD CB | Total: 8
                 case ModbusFunction.FC01_ReadCoils:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
@@ -87,8 +86,7 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—", "8");
                     break;
 
-                // ── FC02 – Read Discrete Inputs ──────────────────────────────
-                // Expected request: 01 02 00 00 00 02 | CRC: F9 CB | Total: 8
+                //FC02 – Read Discrete Inputs
                 case ModbusFunction.FC02_ReadDiscreteInputs:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
@@ -99,8 +97,7 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—", "8");
                     break;
 
-                // ── FC03 – Read Holding Registers ────────────────────────────
-                // Expected request: 01 03 00 00 00 02 | CRC: C4 0B | Total: 8
+                //FC03 – Read Holding Registers
                 case ModbusFunction.FC03_ReadHoldingRegisters:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
@@ -111,8 +108,7 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—", "8");
                     break;
 
-                // ── FC04 – Read Input Registers ──────────────────────────────
-                // Expected request: 01 04 00 00 00 02 | CRC: 71 CB | Total: 8
+                //FC04 – Read Input Registers                
                 case ModbusFunction.FC04_ReadInputRegisters:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
@@ -123,8 +119,7 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—", "8");
                     break;
 
-                // ── FC05 – Write Single Coil ─────────────────────────────────
-                // Expected request: 01 05 00 00 FF 00 | CRC: 8C 3A | Total: 8
+                //FC05 – Write Single Coil
                 case ModbusFunction.FC05_WriteSingleCoil:
                     {
                         byte valHi = pkt.DataBytes?[0] ?? 0x00;
@@ -140,8 +135,7 @@ namespace Edj20Tester
                         break;
                     }
 
-                // ── FC06 – Write Single Register ─────────────────────────────
-                // Expected request: 01 06 00 01 00 03 | CRC: 98 0B | Total: 8
+                //FC06 – Write Single Register
                 case ModbusFunction.FC06_WriteSingleRegister:
                     {
                         byte valHi = pkt.DataBytes?[0] ?? 0x00;
@@ -157,8 +151,7 @@ namespace Edj20Tester
                         break;
                     }
 
-                // ── FC15 – Write Multiple Coils ──────────────────────────────
-                // Expected request: 01 0F 00 00 00 0A 02 55 01 | CRC: 1B A8 | Total: 11
+                //FC15 – Write Multiple Coils
                 case ModbusFunction.FC15_WriteMultipleCoils:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
@@ -167,7 +160,6 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}", "02");
                     if (pkt.DataBytes != null)
                     {
-                        // Byte1=0x55 (01010101), Byte2=0x01 (00000001)
                         string[] expCoilBytes = { "55", "01" };
                         for (int i = 0; i < pkt.DataBytes.Length; i++)
                         {
@@ -183,8 +175,7 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—", "11");
                     break;
 
-                // ── FC16 – Write Multiple Registers ─────────────────────────
-                // Expected request: 01 10 00 00 00 02 04 00 0A 01 02 | CRC: 53 FC | Total: 13
+                //FC16 – Write Multiple Registers
                 case ModbusFunction.FC16_WriteMultipleRegisters:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
@@ -234,14 +225,13 @@ namespace Edj20Tester
             switch (pkt.Function)
             {
                 // ── FC01 – Read Coils ────────────────────────────────────────
-                // Expected response: 01 01 01 01 | CRC: 90 48 | Total: 6
+                // Expected: 01 01 01 01 | CRC: 90 48 | Total: 6
                 case ModbusFunction.FC01_ReadCoils:
                     AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}", "01");
                     if (pkt.DataBytes != null)
                         for (int i = 0; i < pkt.DataBytes.Length; i++)
                         {
                             byte b = pkt.DataBytes[i];
-                            // coil1=ON coil2=OFF → 0x01
                             AddRow(grid, row++, $"Coil Status (Byte {i + 1})", $"{b:X2}",
                                 $"0 {b:X}  [bits: {Convert.ToString(b, 2).PadLeft(8, '0')}]", "01");
                         }
@@ -251,7 +241,7 @@ namespace Edj20Tester
                     break;
 
                 // ── FC02 – Read Discrete Inputs ──────────────────────────────
-                // Expected response: 01 02 01 01 | CRC: 60 48 | Total: 6
+                // Expected: 01 02 01 01 | CRC: 60 48 | Total: 6
                 case ModbusFunction.FC02_ReadDiscreteInputs:
                     AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}", "01");
                     if (pkt.DataBytes != null)
@@ -266,13 +256,11 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—", "6");
                     break;
 
-                // ── FC03 – Read Holding Registers ────────────────────────────
-                // Expected response: 01 03 04 00 06 00 05 | CRC: DA 31 | Total: 9
+                //FC03 – Read Holding Registers
                 case ModbusFunction.FC03_ReadHoldingRegisters:
                     AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}", "04");
                     if (pkt.DataBytes != null)
                     {
-                        // Reg1=0x0006, Reg2=0x0005
                         string[] expRegBytes = { "00", "06", "00", "05" };
                         for (int i = 0; i < pkt.DataBytes.Length; i += 2)
                         {
@@ -287,7 +275,7 @@ namespace Edj20Tester
                     break;
 
                 // ── FC04 – Read Input Registers ──────────────────────────────
-                // Expected response: 01 04 04 00 06 00 05 | CRC: DB 86 | Total: 9
+                // Expected: 01 04 04 00 06 00 05 | CRC: DB 86 | Total: 9
                 case ModbusFunction.FC04_ReadInputRegisters:
                     AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}", "04");
                     if (pkt.DataBytes != null)
@@ -306,7 +294,7 @@ namespace Edj20Tester
                     break;
 
                 // ── FC05 – Write Single Coil (echo response) ─────────────────
-                // Expected response: echo of request 01 05 00 00 FF 00 | CRC: 8C 3A | Total: 8
+                // Expected: 01 05 00 00 FF 00 | CRC: 8C 3A | Total: 8
                 case ModbusFunction.FC05_WriteSingleCoil:
                     {
                         byte hi = pkt.DataBytes?[0] ?? 0x00;
@@ -323,7 +311,7 @@ namespace Edj20Tester
                     }
 
                 // ── FC06 – Write Single Register (echo response) ─────────────
-                // Expected response: echo of request 01 06 00 01 00 03 | CRC: 98 0B | Total: 8
+                // Expected: 01 06 00 01 00 03 | CRC: 98 0B | Total: 8
                 case ModbusFunction.FC06_WriteSingleRegister:
                     {
                         byte hi = pkt.DataBytes?[0] ?? 0x00;
@@ -340,7 +328,7 @@ namespace Edj20Tester
                     }
 
                 // ── FC15 – Write Multiple Coils (confirmation response) ───────
-                // Expected response: 01 0F 00 00 00 0A | CRC: D5 CC | Total: 8
+                // Expected: 01 0F 00 00 00 0A | CRC: D5 CC | Total: 8
                 case ModbusFunction.FC15_WriteMultipleCoils:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
@@ -352,7 +340,7 @@ namespace Edj20Tester
                     break;
 
                 // ── FC16 – Write Multiple Registers (confirmation response) ───
-                // Expected response: 01 10 00 00 00 02 | CRC: 41 C8 | Total: 8
+                // Expected: 01 10 00 00 00 02 | CRC: 41 C8 | Total: 8
                 case ModbusFunction.FC16_WriteMultipleRegisters:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
