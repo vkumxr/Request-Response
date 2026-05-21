@@ -20,7 +20,11 @@ namespace Edj20Tester
             btnStart.IsEnabled = false;
             StatusDot.Fill = Brushes.Yellow;
             StatusText.Text = "STATUS : RUNNING...";
-            var function = ModbusFunction.FC01_ReadCoils;
+
+            ModbusFunction function = ModbusFunction.FC01_ReadCoils;
+            if (FunctionSelector?.SelectedItem is ComboBoxItem item && item.Tag is ModbusFunction fn)
+                function = fn;
+
             var client = new DeviceClient();
             var response = await client.SendAsync(function);
 
@@ -57,22 +61,96 @@ namespace Edj20Tester
             var outerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 20) };
             outerStack.Children.Add(SectionLabel("REQUEST", "#00FFFF"));
 
-            bool isCoil = pkt.Function == ModbusFunction.FC01_ReadCoils ||
-                          pkt.Function == ModbusFunction.FC02_ReadDiscreteInputs;
-
-            string qtyLabel = isCoil ? "Quantity of Coils" : "No. of Registers";
-
             var grid = MakeTableGrid();
             AddHeaderRow(grid, 0);
-
             int row = 1;
+
             AddRow(grid, row++, "Header", "None", "None");
             AddRow(grid, row++, "Slave Address", $"{pkt.SlaveAddress:X2}", $"0 {pkt.SlaveAddress:X}");
             AddRow(grid, row++, "Function", $"{pkt.FunctionCode:X2}", $"0 {pkt.FunctionCode:X}");
-            AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}");
-            AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}");
-            AddRow(grid, row++, $"{qtyLabel} Hi", $"{(pkt.Quantity >> 8):X2}", $"0 {(pkt.Quantity >> 8):X}");
-            AddRow(grid, row++, $"{qtyLabel} Lo", $"{(pkt.Quantity & 0xFF):X2}", $"0 {(pkt.Quantity & 0xFF):X}");
+
+            switch (pkt.Function)
+            {
+                // ── FC01 / FC02 ──────────────────────────────────────────────
+                case ModbusFunction.FC01_ReadCoils:
+                case ModbusFunction.FC02_ReadDiscreteInputs:
+                    AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}");
+                    AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}");
+                    AddRow(grid, row++, "Quantity of Coils Hi", $"{(pkt.Quantity >> 8):X2}", $"0 {(pkt.Quantity >> 8):X}");
+                    AddRow(grid, row++, "Quantity of Coils Lo", $"{(pkt.Quantity & 0xFF):X2}", $"0 {(pkt.Quantity & 0xFF):X}");
+                    break;
+
+                // ── FC03 / FC04 ──────────────────────────────────────────────
+                case ModbusFunction.FC03_ReadHoldingRegisters:
+                case ModbusFunction.FC04_ReadInputRegisters:
+                    AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}");
+                    AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}");
+                    AddRow(grid, row++, "No. of Registers Hi", $"{(pkt.Quantity >> 8):X2}", $"0 {(pkt.Quantity >> 8):X}");
+                    AddRow(grid, row++, "No. of Registers Lo", $"{(pkt.Quantity & 0xFF):X2}", $"0 {(pkt.Quantity & 0xFF):X}");
+                    break;
+
+                // ── FC05 ─────────────────────────────────────────────────────
+                case ModbusFunction.FC05_WriteSingleCoil:
+                    {
+                        byte valHi = pkt.DataBytes?[0] ?? 0x00;
+                        byte valLo = pkt.DataBytes?[1] ?? 0x00;
+                        string state = valHi == 0xFF ? "ON (0xFF00)" : "OFF (0x0000)";
+                        AddRow(grid, row++, "Output Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}");
+                        AddRow(grid, row++, "Output Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}");
+                        AddRow(grid, row++, $"Output Value Hi  [{state}]", $"{valHi:X2}", $"0 {valHi:X}");
+                        AddRow(grid, row++, "Output Value Lo", $"{valLo:X2}", $"0 {valLo:X}");
+                        break;
+                    }
+
+                // ── FC06 ─────────────────────────────────────────────────────
+                case ModbusFunction.FC06_WriteSingleRegister:
+                    {
+                        byte valHi = pkt.DataBytes?[0] ?? 0x00;
+                        byte valLo = pkt.DataBytes?[1] ?? 0x00;
+                        ushort val = (ushort)((valHi << 8) | valLo);
+                        AddRow(grid, row++, "Register Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}");
+                        AddRow(grid, row++, "Register Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}");
+                        AddRow(grid, row++, $"Register Value Hi  [= {val} decimal]", $"{valHi:X2}", $"0 {valHi:X}");
+                        AddRow(grid, row++, "Register Value Lo", $"{valLo:X2}", $"0 {valLo:X}");
+                        break;
+                    }
+
+                // ── FC15 ─────────────────────────────────────────────────────
+                case ModbusFunction.FC15_WriteMultipleCoils:
+                    AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}");
+                    AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}");
+                    AddRow(grid, row++, "Quantity of Outputs Hi", $"{(pkt.Quantity >> 8):X2}", $"0 {(pkt.Quantity >> 8):X}");
+                    AddRow(grid, row++, "Quantity of Outputs Lo", $"{(pkt.Quantity & 0xFF):X2}", $"0 {(pkt.Quantity & 0xFF):X}");
+                    AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}");
+                    if (pkt.DataBytes != null)
+                        for (int i = 0; i < pkt.DataBytes.Length; i++)
+                        {
+                            byte b = pkt.DataBytes[i];
+                            AddRow(grid, row++,
+                                $"Outputs Value (Byte {i + 1})  [bits: {Convert.ToString(b, 2).PadLeft(8, '0')}]",
+                                $"{b:X2}", $"0 {b:X}");
+                        }
+                    break;
+
+                // ── FC16 ─────────────────────────────────────────────────────
+                case ModbusFunction.FC16_WriteMultipleRegisters:
+                    AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}");
+                    AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}");
+                    AddRow(grid, row++, "Quantity of Registers Hi", $"{(pkt.Quantity >> 8):X2}", $"0 {(pkt.Quantity >> 8):X}");
+                    AddRow(grid, row++, "Quantity of Registers Lo", $"{(pkt.Quantity & 0xFF):X2}", $"0 {(pkt.Quantity & 0xFF):X}");
+                    AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}");
+                    if (pkt.DataBytes != null)
+                        for (int i = 0; i < pkt.DataBytes.Length; i += 2)
+                        {
+                            int regNum = (i / 2) + 1;
+                            byte hi = pkt.DataBytes[i];
+                            byte lo = pkt.DataBytes[i + 1];
+                            ushort val = (ushort)((hi << 8) | lo);
+                            AddRow(grid, row++, $"Registers Value Hi (Reg {regNum})  [= {val} decimal]", $"{hi:X2}", $"0 {hi:X}");
+                            AddRow(grid, row++, $"Registers Value Lo (Reg {regNum})", $"{lo:X2}", $"0 {lo:X}");
+                        }
+                    break;
+            }
 
             byte crcLo = (byte)(pkt.Crc & 0xFF);
             byte crcHi = (byte)(pkt.Crc >> 8);
@@ -92,42 +170,76 @@ namespace Edj20Tester
             var outerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 20) };
             outerStack.Children.Add(SectionLabel("RESPONSE", "#00FF00"));
 
-            bool isCoil = pkt.Function == ModbusFunction.FC01_ReadCoils ||
-                          pkt.Function == ModbusFunction.FC02_ReadDiscreteInputs;
-
             var grid = MakeTableGrid();
             AddHeaderRow(grid, 0);
-
             int row = 1;
+
             AddRow(grid, row++, "Header", "None", "None");
             AddRow(grid, row++, "Slave Address", $"{pkt.SlaveAddress:X2}", $"0 {pkt.SlaveAddress:X}");
             AddRow(grid, row++, "Function", $"{pkt.FunctionCode:X2}", $"0 {pkt.FunctionCode:X}");
-            AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}");
 
-            if (pkt.DataBytes != null)
+            switch (pkt.Function)
             {
-                if (isCoil)
-                {
-                    // Each byte holds up to 8 coil statuses as bits
-                    for (int i = 0; i < pkt.DataBytes.Length; i++)
+                // ── FC01 / FC02 ──────────────────────────────────────────────
+                case ModbusFunction.FC01_ReadCoils:
+                case ModbusFunction.FC02_ReadDiscreteInputs:
+                    AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}");
+                    if (pkt.DataBytes != null)
+                        for (int i = 0; i < pkt.DataBytes.Length; i++)
+                        {
+                            byte b = pkt.DataBytes[i];
+                            AddRow(grid, row++,
+                                $"Coil Status (Byte {i + 1})",
+                                $"{b:X2}",
+                                $"0 {b:X}  [bits: {Convert.ToString(b, 2).PadLeft(8, '0')}]");
+                        }
+                    break;
+
+                // ── FC03 / FC04 ──────────────────────────────────────────────
+                case ModbusFunction.FC03_ReadHoldingRegisters:
+                case ModbusFunction.FC04_ReadInputRegisters:
+                    AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}");
+                    if (pkt.DataBytes != null)
+                        for (int i = 0; i < pkt.DataBytes.Length; i += 2)
+                        {
+                            int regNum = (i / 2) + 1;
+                            AddRow(grid, row++, $"Data Hi (Reg {regNum})", $"{pkt.DataBytes[i]:X2}", $"0 {pkt.DataBytes[i]:X}");
+                            AddRow(grid, row++, $"Data Lo (Reg {regNum})", $"{pkt.DataBytes[i + 1]:X2}", $"0 {pkt.DataBytes[i + 1]:X}");
+                        }
+                    break;
+
+                // ── FC05 / FC06 – echo response ──────────────────────────────
+                case ModbusFunction.FC05_WriteSingleCoil:
+                case ModbusFunction.FC06_WriteSingleRegister:
                     {
-                        byte b = pkt.DataBytes[i];
-                        AddRow(grid, row++,
-                            $"Coil Status (Byte {i + 1})",
-                            $"{b:X2}",
-                            $"0 {b:X}  [bits: {Convert.ToString(b, 2).PadLeft(8, '0')}]");
+                        string addrLabel = pkt.Function == ModbusFunction.FC05_WriteSingleCoil ? "Output Address" : "Register Address";
+                        string valLabel = pkt.Function == ModbusFunction.FC05_WriteSingleCoil ? "Output Value" : "Register Value";
+                        byte hi = pkt.DataBytes?[0] ?? 0x00;
+                        byte lo = pkt.DataBytes?[1] ?? 0x00;
+                        string annotation = pkt.Function == ModbusFunction.FC05_WriteSingleCoil
+                            ? (hi == 0xFF ? "  [ON confirmed]" : "  [OFF confirmed]")
+                            : $"  [= {(ushort)((hi << 8) | lo)} decimal]";
+
+                        AddRow(grid, row++, $"{addrLabel} Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}");
+                        AddRow(grid, row++, $"{addrLabel} Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}");
+                        AddRow(grid, row++, $"{valLabel} Hi{annotation}", $"{hi:X2}", $"0 {hi:X}");
+                        AddRow(grid, row++, $"{valLabel} Lo", $"{lo:X2}", $"0 {lo:X}");
+                        break;
                     }
-                }
-                else
-                {
-                    // Each pair of bytes is one 16-bit register
-                    for (int i = 0; i < pkt.DataBytes.Length; i += 2)
+
+                // ── FC15 / FC16 – short confirmation response ────────────────
+                case ModbusFunction.FC15_WriteMultipleCoils:
+                case ModbusFunction.FC16_WriteMultipleRegisters:
                     {
-                        int regNum = (i / 2) + 1;
-                        AddRow(grid, row++, $"Data Hi (Reg {regNum})", $"{pkt.DataBytes[i]:X2}", $"0 {pkt.DataBytes[i]:X}");
-                        AddRow(grid, row++, $"Data Lo (Reg {regNum})", $"{pkt.DataBytes[i + 1]:X2}", $"0 {pkt.DataBytes[i + 1]:X}");
+                        string qtyLabel = pkt.Function == ModbusFunction.FC15_WriteMultipleCoils
+                            ? "Quantity of Outputs"
+                            : "Quantity of Registers";
+                        AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}");
+                        AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}");
+                        AddRow(grid, row++, $"{qtyLabel} Hi", $"{(pkt.Quantity >> 8):X2}", $"0 {(pkt.Quantity >> 8):X}");
+                        AddRow(grid, row++, $"{qtyLabel} Lo", $"{(pkt.Quantity & 0xFF):X2}", $"0 {(pkt.Quantity & 0xFF):X}");
+                        break;
                     }
-                }
             }
 
             byte crcLo = (byte)(pkt.Crc & 0xFF);
