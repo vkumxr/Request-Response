@@ -188,8 +188,8 @@ namespace Edj20Tester
                             byte hi = pkt.DataBytes[i];
                             byte lo = pkt.DataBytes[i + 1];
                             ushort val = (ushort)((hi << 8) | lo);
-                            AddRow(grid, row++, $"Registers Value Hi (Reg {regNum})  [= {val} decimal]", $"{hi:X2}", $"0 {hi:X}", expRegBytes[i]);
-                            AddRow(grid, row++, $"Registers Value Lo (Reg {regNum})", $"{lo:X2}", $"0 {lo:X}", expRegBytes[i + 1]);
+                            AddRow(grid, row++, $"Reg {regNum} Hi", $"{hi:X2}", $"0 {hi:X}", expRegBytes[i]);
+                            AddRow(grid, row++, $"Reg {regNum} Lo", $"{lo:X2}", $"0 {lo:X}", expRegBytes[i + 1]);
                         }
                     }
                     AddRow(grid, row++, "Error Check Lo (CRC)", $"{(byte)(pkt.Crc & 0xFF):X2}", $"LRC ({(byte)(pkt.Crc & 0xFF):X2})", "53");
@@ -258,8 +258,8 @@ namespace Edj20Tester
                         for (int i = 0; i < pkt.DataBytes.Length; i += 2)
                         {
                             int regNum = (i / 2) + 1;
-                            AddRow(grid, row++, $"Data Hi (Reg {regNum})", $"{pkt.DataBytes[i]:X2}", $"0 {pkt.DataBytes[i]:X}", expRegBytes[i]);
-                            AddRow(grid, row++, $"Data Lo (Reg {regNum})", $"{pkt.DataBytes[i + 1]:X2}", $"0 {pkt.DataBytes[i + 1]:X}", expRegBytes[i + 1]);
+                            AddRow(grid, row++, $"Reg {regNum} Hi", $"{pkt.DataBytes[i]:X2}", $"0 {pkt.DataBytes[i]:X}", expRegBytes[i]);
+                            AddRow(grid, row++, $"Reg {regNum} Lo", $"{pkt.DataBytes[i + 1]:X2}", $"0 {pkt.DataBytes[i + 1]:X}", expRegBytes[i + 1]);
                         }
                     }
                     AddRow(grid, row++, "Error Check Lo (CRC)", $"{(byte)(pkt.Crc & 0xFF):X2}", $"LRC ({(byte)(pkt.Crc & 0xFF):X2})", "DA");
