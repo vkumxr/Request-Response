@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:Edj20Tester.Models"
         mc:Ignorable="d"
         Title="EDJ20 TESTING SYSTEM"
         Height="700" Width="980"
@@ -28,8 +29,42 @@
                     Margin="0,0,0,16" VerticalAlignment="Center">
 
             <!-- Dropdown label -->
+            <TextBlock Text="Function:"
+                       Foreground="#AAAAAA"
+                       FontSize="13"
+                       FontFamily="Consolas"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
 
             <!-- Function code dropdown -->
+            <ComboBox Name="FunctionSelector"
+                      Width="280" Height="40"
+                      Background="#111111"
+                      Foreground="Black"
+                      BorderBrush="#555555"
+                      BorderThickness="1"
+                      FontFamily="Consolas"
+                      FontSize="13"
+                      SelectedIndex="0"
+                      Margin="0,0,12,0"
+                      VerticalContentAlignment="Center">
+                <ComboBoxItem Content="FC01 – Read Coils"
+                              Tag="{x:Static models:ModbusFunction.FC01_ReadCoils}"/>
+                <ComboBoxItem Content="FC02 – Read Discrete Inputs"
+                              Tag="{x:Static models:ModbusFunction.FC02_ReadDiscreteInputs}"/>
+                <ComboBoxItem Content="FC03 – Read Holding Registers"
+                              Tag="{x:Static models:ModbusFunction.FC03_ReadHoldingRegisters}"/>
+                <ComboBoxItem Content="FC04 – Read Input Registers"
+                              Tag="{x:Static models:ModbusFunction.FC04_ReadInputRegisters}"/>
+                <ComboBoxItem Content="FC05 – Write Single Coil"
+                              Tag="{x:Static models:ModbusFunction.FC05_WriteSingleCoil}"/>
+                <ComboBoxItem Content="FC06 – Write Single Register"
+                              Tag="{x:Static models:ModbusFunction.FC06_WriteSingleRegister}"/>
+                <ComboBoxItem Content="FC15 – Write Multiple Coils"
+                              Tag="{x:Static models:ModbusFunction.FC15_WriteMultipleCoils}"/>
+                <ComboBoxItem Content="FC16 – Write Multiple Registers"
+                              Tag="{x:Static models:ModbusFunction.FC16_WriteMultipleRegisters}"/>
+            </ComboBox>
 
             <!-- Start button -->
             <Button Name="btnStart"
@@ -86,7 +121,7 @@
                          VerticalAlignment="Center"/>
                 <TextBlock Name="StatusText"
                            Text="STATUS : READY"
-                           Foreground="Cyan"
+                           Foreground="Black"
                            FontSize="16"
                            FontWeight="Bold"
                            VerticalAlignment="Center"/>
