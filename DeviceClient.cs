@@ -310,9 +310,7 @@ namespace Edj20Tester
             return new DeviceResponse("OK") { Request = req, Response = res };
         }
 
-        // ── FC16 – Write Multiple Registers ──────────────────────────────────
-        // Request : [SlaveId][10][AddrHi][AddrLo][QtyHi][QtyLo][ByteCount][Reg1Hi][Reg1Lo]...[CRC-Lo][CRC-Hi]
-        // Response: [SlaveId][10][AddrHi][AddrLo][QtyHi][QtyLo][CRC-Lo][CRC-Hi]
+        //FC16 – Write Multiple Registers
         private DeviceResponse BuildWriteMultipleRegistersResponse()
         {
             const byte fc = (byte)ModbusFunction.FC16_WriteMultipleRegisters;
