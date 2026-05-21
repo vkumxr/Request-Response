@@ -28,9 +28,17 @@ namespace Edj20Tester
             var client = new DeviceClient();
             var response = await client.SendAsync(function);
 
-            PacketPanel.Children.Clear();
-            ShowPackets(response);
-            PacketScroller.ScrollToTop();
+            RequestPanel.Children.Clear();
+            ResponsePanel.Children.Clear();
+
+            if (response.Request != null)
+                RequestPanel.Children.Add(BuildRequestTable(response.Request));
+
+            if (response.Response != null)
+                ResponsePanel.Children.Add(BuildResponseTable(response.Response));
+
+            RequestScroller.ScrollToTop();
+            ResponseScroller.ScrollToTop();
 
             StatusDot.Fill = response.IsError ? Brushes.Red : Brushes.Lime;
             StatusText.Text = response.IsError ? "STATUS : ERROR" : "STATUS : PASS";
@@ -39,27 +47,17 @@ namespace Edj20Tester
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
-            PacketPanel.Children.Clear();
+            RequestPanel.Children.Clear();
+            ResponsePanel.Children.Clear();
             StatusDot.Fill = Brushes.Lime;
             StatusText.Text = "STATUS : READY";
         }
 
-        // ── Render ────────────────────────────────────────────────────────────
-
-        private void ShowPackets(DeviceResponse response)
-        {
-            if (response.Request != null)
-                PacketPanel.Children.Add(BuildRequestTable(response.Request));
-            if (response.Response != null)
-                PacketPanel.Children.Add(BuildResponseTable(response.Response));
-        }
-
-        // ── REQUEST table ─────────────────────────────────────────────────────
+        // ── REQUEST TABLE ─────────────────────────────────────────────────────
 
         private UIElement BuildRequestTable(ModbusPacket pkt)
         {
             var outerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 20) };
-            outerStack.Children.Add(SectionLabel("REQUEST", "#00FFFF"));
 
             var grid = MakeTableGrid();
             AddHeaderRow(grid, 0);
@@ -74,8 +72,7 @@ namespace Edj20Tester
 
             switch (pkt.Function)
             {
-                // ── FC01 – Read Coils ────────────────────────────────────────
-                // Expected: 01 01 00 00 00 02 | CRC: BD CB | Total: 8
+                //FC01 – Read Coils
                 case ModbusFunction.FC01_ReadCoils:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
@@ -108,7 +105,7 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—", "8");
                     break;
 
-                //FC04 – Read Input Registers                
+                //FC04 – Read Input Registers
                 case ModbusFunction.FC04_ReadInputRegisters:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
@@ -184,7 +181,6 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}", "04");
                     if (pkt.DataBytes != null)
                     {
-                        // Reg1=0x000A (10 decimal), Reg2=0x0102 (258 decimal)
                         string[] expRegBytes = { "00", "0A", "01", "02" };
                         for (int i = 0; i < pkt.DataBytes.Length; i += 2)
                         {
@@ -207,12 +203,11 @@ namespace Edj20Tester
             return outerStack;
         }
 
-        // ── RESPONSE table ────────────────────────────────────────────────────
+        // ── RESPONSE TABLE ────────────────────────────────────────────────────
 
         private UIElement BuildResponseTable(ModbusPacket pkt)
         {
             var outerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 20) };
-            outerStack.Children.Add(SectionLabel("RESPONSE", "#00FF00"));
 
             var grid = MakeTableGrid();
             AddHeaderRow(grid, 0);
@@ -224,8 +219,7 @@ namespace Edj20Tester
 
             switch (pkt.Function)
             {
-                // ── FC01 – Read Coils ────────────────────────────────────────
-                // Expected: 01 01 01 01 | CRC: 90 48 | Total: 6
+                //FC01 – Read Coils
                 case ModbusFunction.FC01_ReadCoils:
                     AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}", "01");
                     if (pkt.DataBytes != null)
@@ -240,8 +234,7 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—", "6");
                     break;
 
-                // ── FC02 – Read Discrete Inputs ──────────────────────────────
-                // Expected: 01 02 01 01 | CRC: 60 48 | Total: 6
+                //FC02 – Read Discrete Inputs
                 case ModbusFunction.FC02_ReadDiscreteInputs:
                     AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}", "01");
                     if (pkt.DataBytes != null)
@@ -274,8 +267,7 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—", "9");
                     break;
 
-                // ── FC04 – Read Input Registers ──────────────────────────────
-                // Expected: 01 04 04 00 06 00 05 | CRC: DB 86 | Total: 9
+                //FC04 – Read Input Registers
                 case ModbusFunction.FC04_ReadInputRegisters:
                     AddRow(grid, row++, "Byte Count", $"{pkt.ByteCount:X2}", $"0 {pkt.ByteCount:X}", "04");
                     if (pkt.DataBytes != null)
@@ -293,8 +285,7 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—", "9");
                     break;
 
-                // ── FC05 – Write Single Coil (echo response) ─────────────────
-                // Expected: 01 05 00 00 FF 00 | CRC: 8C 3A | Total: 8
+                //FC05 – Write Single Coil (echo response)
                 case ModbusFunction.FC05_WriteSingleCoil:
                     {
                         byte hi = pkt.DataBytes?[0] ?? 0x00;
@@ -310,8 +301,7 @@ namespace Edj20Tester
                         break;
                     }
 
-                // ── FC06 – Write Single Register (echo response) ─────────────
-                // Expected: 01 06 00 01 00 03 | CRC: 98 0B | Total: 8
+                //FC06 – Write Single Register (echo response)
                 case ModbusFunction.FC06_WriteSingleRegister:
                     {
                         byte hi = pkt.DataBytes?[0] ?? 0x00;
@@ -327,8 +317,7 @@ namespace Edj20Tester
                         break;
                     }
 
-                // ── FC15 – Write Multiple Coils (confirmation response) ───────
-                // Expected: 01 0F 00 00 00 0A | CRC: D5 CC | Total: 8
+                //FC15 – Write Multiple Coils (confirmation response)
                 case ModbusFunction.FC15_WriteMultipleCoils:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
@@ -339,8 +328,7 @@ namespace Edj20Tester
                     AddRow(grid, row++, "Total Bytes", pkt.RawBytes.Length.ToString(), "—", "8");
                     break;
 
-                // ── FC16 – Write Multiple Registers (confirmation response) ───
-                // Expected: 01 10 00 00 00 02 | CRC: 41 C8 | Total: 8
+                //FC16 – Write Multiple Registers (confirmation response)
                 case ModbusFunction.FC16_WriteMultipleRegisters:
                     AddRow(grid, row++, "Starting Address Hi", $"{(pkt.StartAddress >> 8):X2}", $"0 {(pkt.StartAddress >> 8):X}", "00");
                     AddRow(grid, row++, "Starting Address Lo", $"{(pkt.StartAddress & 0xFF):X2}", $"0 {(pkt.StartAddress & 0xFF):X}", "00");
