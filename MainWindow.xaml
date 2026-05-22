@@ -9,6 +9,69 @@
         Height="760" Width="1380"
         Background="#1E1E1E">
 
+    <Window.Resources>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background"  Value="#111111"/>
+            <Setter Property="Foreground"  Value="White"/>
+            <Setter Property="FontFamily"  Value="Consolas"/>
+            <Setter Property="FontSize"    Value="13"/>
+            <Setter Property="Padding"     Value="8,6"/>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="#00AAAA"/>
+                    <Setter Property="Foreground" Value="Black"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#007777"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Background"  Value="#111111"/>
+            <Setter Property="Foreground"  Value="White"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="FontFamily"  Value="Consolas"/>
+            <Setter Property="FontSize"    Value="13"/>
+        </Style>
+
+        <Style x:Key="DarkButton" TargetType="Button">
+            <Setter Property="Background"      Value="#111111"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
     <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -37,29 +100,15 @@
 
             <ComboBox Name="FunctionSelector"
                       Width="280" Height="40"
-                      Background="#111111"
-                      Foreground="Black"
-                      BorderBrush="#555555"
-                      BorderThickness="1"
-                      FontFamily="Consolas"
-                      FontSize="13"
                       SelectedIndex="0"
                       Margin="0,0,12,0"
                       VerticalContentAlignment="Center">
-                <ComboBoxItem Content="FC01 – Read Coils"
-                              Tag="{x:Static models:ModbusFunction.FC01_ReadCoils}"/>
-                <ComboBoxItem Content="FC02 – Read Discrete Inputs"
-                              Tag="{x:Static models:ModbusFunction.FC02_ReadDiscreteInputs}"/>
                 <ComboBoxItem Content="FC03 – Read Holding Registers"
                               Tag="{x:Static models:ModbusFunction.FC03_ReadHoldingRegisters}"/>
                 <ComboBoxItem Content="FC04 – Read Input Registers"
                               Tag="{x:Static models:ModbusFunction.FC04_ReadInputRegisters}"/>
-                <ComboBoxItem Content="FC05 – Write Single Coil"
-                              Tag="{x:Static models:ModbusFunction.FC05_WriteSingleCoil}"/>
                 <ComboBoxItem Content="FC06 – Write Single Register"
                               Tag="{x:Static models:ModbusFunction.FC06_WriteSingleRegister}"/>
-                <ComboBoxItem Content="FC15 – Write Multiple Coils"
-                              Tag="{x:Static models:ModbusFunction.FC15_WriteMultipleCoils}"/>
                 <ComboBoxItem Content="FC16 – Write Multiple Registers"
                               Tag="{x:Static models:ModbusFunction.FC16_WriteMultipleRegisters}"/>
             </ComboBox>
@@ -68,26 +117,19 @@
                     Click="btnStart_Click"
                     Content="START TEST"
                     Width="140" Height="40"
-                    Background="#111111"
                     Foreground="Lime"
                     BorderBrush="Lime"
-                    BorderThickness="1"
-                    FontWeight="Bold"
-                    FontSize="13"
-                    Cursor="Hand"/>
+                    Style="{StaticResource DarkButton}"/>
 
             <Button Name="btnClear"
                     Click="btnClear_Click"
                     Content="CLEAR"
                     Width="90" Height="40"
-                    Background="#111111"
                     Foreground="#FF5555"
                     BorderBrush="#FF5555"
-                    BorderThickness="1"
-                    FontWeight="Bold"
-                    FontSize="13"
-                    Cursor="Hand"
-                    Margin="10,0,0,0"/>
+                    Margin="10,0,0,0"
+                    Style="{StaticResource DarkButton}"/>
+
         </StackPanel>
 
         <!-- SIDE-BY-SIDE PACKET AREA -->
@@ -98,7 +140,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ── LEFT: REQUEST panel ── -->
+            <!-- LEFT: REQUEST panel -->
             <Border Grid.Column="0"
                     Background="#111111"
                     BorderBrush="#00CCCC"
@@ -110,7 +152,6 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-
                     <TextBlock Grid.Row="0"
                                Text="REQUEST"
                                Foreground="#00FFFF"
@@ -118,7 +159,6 @@
                                FontSize="16"
                                FontWeight="Bold"
                                Margin="0,0,0,10"/>
-
                     <ScrollViewer Grid.Row="1"
                                   Name="RequestScroller"
                                   VerticalScrollBarVisibility="Auto"
@@ -128,14 +168,14 @@
                 </Grid>
             </Border>
 
-            <!-- ── CENTRE divider ── -->
+            <!-- CENTRE divider -->
             <Rectangle Grid.Column="1"
                        Width="1"
                        Fill="#333333"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Stretch"/>
 
-            <!-- ── RIGHT: RESPONSE panel ── -->
+            <!-- RIGHT: RESPONSE panel -->
             <Border Grid.Column="2"
                     Background="#111111"
                     BorderBrush="#00AA00"
@@ -147,7 +187,6 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-
                     <TextBlock Grid.Row="0"
                                Text="RESPONSE"
                                Foreground="#00FF00"
@@ -155,7 +194,6 @@
                                FontSize="16"
                                FontWeight="Bold"
                                Margin="0,0,0,10"/>
-
                     <ScrollViewer Grid.Row="1"
                                   Name="ResponseScroller"
                                   VerticalScrollBarVisibility="Auto"
@@ -180,7 +218,8 @@
                          VerticalAlignment="Center"/>
                 <TextBlock Name="StatusText"
                            Text="STATUS : READY"
-                           Foreground="Black"
+                           Foreground="White"
+                           FontFamily="Consolas"
                            FontSize="16"
                            FontWeight="Bold"
                            VerticalAlignment="Center"/>
